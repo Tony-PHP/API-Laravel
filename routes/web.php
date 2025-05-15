@@ -20,6 +20,9 @@ Route::prefix('bolsa-tac')->group(function () {
 Route::prefix('coordiapp')->group(function () {
     Route::get('/completadas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesCompletadas'])->name('coordiapp.completadas');
     Route::get('/incompletas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesIncompletas'])->name('coordiapp.incompletas');
+    Route::get('/opciones', [coordiApp_Ctrl::class, 'obtenerOpciones'])->name('coordiapp.opciones');
+    Route::get('/get-orden/{Folio_Pisa}', [coordiApp_Ctrl::class, 'getOrden'])->name('coordiapp.get-orden');
+    Route::put('/actualizar', [coordiApp_Ctrl::class, 'actualizar'])->name('coordiapp.actualizar');
 });
 
 // Ruta para iniciar sesión en CoordiApp
