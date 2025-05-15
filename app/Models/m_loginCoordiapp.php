@@ -20,7 +20,7 @@ class m_loginCoordiapp extends Model
     public function iniciarSesion($Usuario_App, $Estatus_Tecnico = 'activo')
     {
         return DB::table('tecnicos')
-            ->select('idTecnico', 'Nombre_T', 'Apellidos_T', 'Usuario_App', 'Estatus_Tecnico', 'Rol')
+            ->select('idTecnico', 'Nombre_T', 'Apellidos_T', 'Usuario_App', 'Estatus_Tecnico')
             ->where('Usuario_App', $Usuario_App)
             ->where('Estatus_Tecnico', $Estatus_Tecnico)
             ->first();
