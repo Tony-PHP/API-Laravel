@@ -5,15 +5,32 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\m_coordiApp;
 
+/**
+ * Controlador para manejar las operaciones relacionadas con CoordiApp.
+ */
 class coordiApp_Ctrl extends Controller
 {
+    /**
+     * @var m_coordiApp
+     */
     protected $coordiApp;
 
+    /**
+     * Constructor para inyectar el modelo m_coordiApp.
+     *
+     * @param m_coordiApp $coordiApp
+     */
     public function __construct(m_coordiApp $coordiApp)
     {
         $this->coordiApp = $coordiApp;
     }
 
+    /**
+     * Obtiene las órdenes completadas de un técnico.
+     *
+     * @param int $FK_Tecnico_apps ID del técnico.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function getOrdenesCompletadas($FK_Tecnico_apps)
     {
         try {
@@ -24,6 +41,12 @@ class coordiApp_Ctrl extends Controller
         }
     }
 
+    /**
+     * Obtiene las órdenes incompletas de un técnico.
+     *
+     * @param int $FK_Tecnico_apps ID del técnico.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function getOrdenesIncompletas($FK_Tecnico_apps)
     {
         try {
@@ -34,9 +57,15 @@ class coordiApp_Ctrl extends Controller
         }
     }
 
+    /**
+     * Obtiene opciones basadas en el paso y parámetros proporcionados.
+     *
+     * @param Request $request Solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function obtenerOpciones(Request $request)
     {
-        $step = $request->query('step'); // Obtener el parámetro 'step' de la consulta
+        $step = $request->query('step');
         $bindings = [];
 
         if ($step === '5m' && $request->query('idEstado')) {
@@ -59,19 +88,30 @@ class coordiApp_Ctrl extends Controller
         }
     }
 
+    /**
+     * Obtiene una orden específica basada en el Folio Pisa.
+     *
+     * @param string $Folio_Pisa Folio de Pisa.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function getOrden($Folio_Pisa)
     {
         try {
-            $ordenesCompletadas = $this->coordiApp->getOrden($Folio_Pisa);
-            return response()->json($ordenesCompletadas);
+            $orden = $this->coordiApp->getOrden($Folio_Pisa);
+            return response()->json($orden);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
+    /**
+     * Actualiza un registro en CoordiApp.
+     *
+     * @param Request $request Solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function actualizar(Request $request)
     {
-        // Validar los datos de entrada
         $validatedData = $request->validate([
             'idtecnico_instalaciones_coordiapp' => 'required|integer',
             'FK_Cope' => 'nullable|string',
@@ -89,38 +129,22 @@ class coordiApp_Ctrl extends Controller
             'Foto_Puerto' => 'nullable|string',
             'Metraje' => 'nullable|numeric',
             'Tecnologia' => 'nullable|string',
-            // Agregar más campos según sea necesario
         ]);
 
         $id = $validatedData['idtecnico_instalaciones_coordiapp'];
 
         try {
-            // Obtener el Folio_Pisa
             $folioPisa = $this->coordiApp->obtenerFolioPisa($id);
             if (!$folioPisa) {
                 return response()->json(['mensaje' => 'No se encontró el Folio_Pisa para el ID proporcionado.'], 404);
             }
 
-            // Campos permitidos
             $allowedFields = [
-                'FK_Cope' => 'FK_Cope',
-                'Foto_Ont' => 'Foto_Ont',
-                'Fecha_Coordiapp' => 'Fecha_Coordiapp',
-                'Foto_Casa_Cliente' => 'Foto_Casa_Cliente',
-                'Foto_INE' => 'Foto_INE',
-                'FK_Tecnico_apps' => 'FK_Tecnico_apps',
-                'No_Serie_ONT' => 'No_Serie_ONT',
-                'Distrito' => 'Distrito',
-                'Puerto' => 'Puerto',
-                'Terminal' => 'Terminal',
-                'Tipo_Tarea' => 'Tipo_Tarea',
-                'Estatus_Orden' => 'Estatus_Orden',
-                'Foto_Puerto' => 'Foto_Puerto',
-                'Metraje' => 'Metraje',
-                'Tecnologia' => 'Tecnologia',
+                'FK_Cope', 'Foto_Ont', 'Fecha_Coordiapp', 'Foto_Casa_Cliente', 'Foto_INE',
+                'FK_Tecnico_apps', 'No_Serie_ONT', 'Distrito', 'Puerto', 'Terminal',
+                'Tipo_Tarea', 'Estatus_Orden', 'Foto_Puerto', 'Metraje', 'Tecnologia',
             ];
 
-            // Campos de imágenes
             $imageFields = [
                 'Foto_Ont' => 'fotoONT',
                 'Foto_Casa_Cliente' => 'foto_casa_cliente',
@@ -128,7 +152,6 @@ class coordiApp_Ctrl extends Controller
                 'Foto_Puerto' => 'foto_puerto',
             ];
 
-            // Actualizar el registro
             $this->coordiApp->actualizarRegistro($id, $validatedData, $allowedFields, $imageFields, $folioPisa);
 
             return response()->json(['mensaje' => 'Registro actualizado exitosamente.']);
@@ -137,6 +160,12 @@ class coordiApp_Ctrl extends Controller
         }
     }
 
+    /**
+     * Valida si la sesión del usuario es válida.
+     *
+     * @param Request $request Solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function verificarSesion(Request $request)
     {
         if ($request->session()->has('user')) {
@@ -147,21 +176,30 @@ class coordiApp_Ctrl extends Controller
         } else {
             return response()->json([
                 'mensaje' => 'Sesión no válida o expirada'
-            ], 401); // Código de estado 401 para sesión no válida
+            ], 401);
         }
     }
 
+    /**
+     * Cierra la sesión del usuario.
+     *
+     * @param Request $request Solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function cerrarSesion(Request $request)
     {
-        // Limpiar todos los datos de la sesión
         $request->session()->flush();
-
         return response()->json(['mensaje' => 'Sesión cerrada correctamente.']);
     }
 
+    /**
+     * Obtiene una comparativa basada en los parámetros proporcionados.
+     *
+     * @param Request $request Solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
+     */
     public function comparativa(Request $request)
     {
-        // Validar los datos de entrada
         $validatedData = $request->validate([
             'anio' => 'required|integer',
             'mes' => 'required|integer|min:1|max:12',
@@ -170,13 +208,12 @@ class coordiApp_Ctrl extends Controller
         ]);
 
         try {
-            $anio = $validatedData['anio'];
-            $mes = $validatedData['mes'];
-            $idTecnico = $validatedData['idTecnico'];
-            $opcion = $validatedData['opcion'];
-
-            // Obtener los datos desde el modelo
-            $result = $this->coordiApp->obtenerComparativa($anio, $mes, $idTecnico, $opcion);
+            $result = $this->coordiApp->obtenerComparativa(
+                $validatedData['anio'],
+                $validatedData['mes'],
+                $validatedData['idTecnico'],
+                $validatedData['opcion']
+            );
 
             return response()->json($result ?: ['mensaje' => 'No se encontraron resultados.']);
         } catch (\InvalidArgumentException $e) {

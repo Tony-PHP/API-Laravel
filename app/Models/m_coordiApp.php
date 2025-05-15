@@ -5,8 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Modelo para manejar las operaciones relacionadas con CoordiApp.
+ */
 class m_coordiApp extends Model
 {
+    /**
+     * Obtiene las órdenes completadas de un técnico.
+     *
+     * @param int $FK_Tecnico_apps ID del técnico.
+     * @return \Illuminate\Support\Collection Colección con las órdenes completadas.
+     */
     public function getOrdenesCompletadas($FK_Tecnico_apps)
     {
         return DB::table('View_Detalle_Coordiapp_Completadas')
@@ -14,6 +23,12 @@ class m_coordiApp extends Model
             ->get();
     }
 
+    /**
+     * Obtiene las órdenes incompletas de un técnico.
+     *
+     * @param int $FK_Tecnico_apps ID del técnico.
+     * @return \Illuminate\Support\Collection Colección con las órdenes incompletas.
+     */
     public function getOrdenesIncompletadas($FK_Tecnico_apps)
     {
         return DB::table('View_Detalle_Coordiapp_Incompletas')
@@ -21,6 +36,14 @@ class m_coordiApp extends Model
             ->get();
     }
 
+    /**
+     * Obtiene opciones basadas en el paso y parámetros proporcionados.
+     *
+     * @param int|string $step Paso para determinar la consulta.
+     * @param array $bindings Parámetros para la consulta.
+     * @return \Illuminate\Support\Collection Colección con los resultados de la consulta.
+     * @throws \InvalidArgumentException Si el paso no es válido.
+     */
     public function obtenerOpciones($step, $bindings)
     {
         $queries = [
@@ -46,13 +69,29 @@ class m_coordiApp extends Model
         return DB::select($queries[$step], $bindings);
     }
 
+    /**
+     * Obtiene una orden específica basada en el Folio Pisa.
+     *
+     * @param string $Folio_Pisa Folio de Pisa.
+     * @return \Illuminate\Support\Collection Colección con los datos de la orden.
+     */
     public function getOrden($Folio_Pisa)
     {
         return DB::table('tecnico_instalaciones_coordiapp')
             ->where('Folio_Pisa', $Folio_Pisa)
             ->get();
     }
-    
+
+    /**
+     * Actualiza un registro en la tabla `tecnico_instalaciones_coordiapp`.
+     *
+     * @param int $id ID del registro a actualizar.
+     * @param array $params Datos a actualizar.
+     * @param array $allowedFields Campos permitidos para la actualización.
+     * @param array $imageFields Campos de imágenes para procesar.
+     * @param string $folioPisa Folio Pisa asociado.
+     * @throws \Exception Si ocurre un error durante la actualización.
+     */
     public function actualizarRegistro($id, $params, $allowedFields, $imageFields, $folioPisa)
     {
         DB::beginTransaction();
@@ -79,10 +118,9 @@ class m_coordiApp extends Model
                         $fileType = explode(':', $fileParts[0])[1];
                         $fileData = base64_decode($fileParts[1]);
 
-                        $fileExtension = str_replace('image/', '', $fileType);
                         $uniqueFileName = $folioPisa . '.jpg';
-
                         $uploadDir = public_path('imagesCordiapp/' . $folderName . '/');
+
                         if (!is_dir($uploadDir)) {
                             mkdir($uploadDir, 0755, true);
                         }
@@ -118,6 +156,12 @@ class m_coordiApp extends Model
         }
     }
 
+    /**
+     * Obtiene el Folio Pisa asociado a un registro.
+     *
+     * @param int $id ID del registro.
+     * @return string|null Folio Pisa o null si no se encuentra.
+     */
     public function obtenerFolioPisa($id)
     {
         $sql = "SELECT Folio_Pisa FROM tecnico_instalaciones_coordiapp WHERE idtecnico_instalaciones_coordiapp = ?";
@@ -125,7 +169,17 @@ class m_coordiApp extends Model
 
         return $result ? $result[0]->Folio_Pisa : null;
     }
-    
+
+    /**
+     * Obtiene una comparativa de producción entre Telmex y ED.
+     *
+     * @param int $anio Año de la consulta.
+     * @param int $mes Mes de la consulta.
+     * @param int $idTecnico ID del técnico.
+     * @param int $opcion Opción de consulta (1 o 2).
+     * @return \Illuminate\Support\Collection Colección con los datos de la comparativa.
+     * @throws \InvalidArgumentException Si la opción no es válida.
+     */
     public function obtenerComparativa($anio, $mes, $idTecnico, $opcion)
     {
         if ($opcion == 1) {
