@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\bolsaTac_Ctrl;
 use App\Http\Controllers\coordiApp_Ctrl;
+use App\Http\Controllers\logincoordiappCtrl;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,3 +17,6 @@ Route::get('/completadas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'ge
 
 //RUTA PARA OBTENER ORDENES INCOMPLETAS COORDIAPP TECNICO
 Route::get('/incompletas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesIncompletas']);
+
+//RUTA PARA INICIAR SESION COORDIAPP
+Route::get('/iniciar-sesion/{Usuario_App}', [logincoordiappCtrl::class, 'iniciarSesion']);
