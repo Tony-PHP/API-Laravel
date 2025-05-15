@@ -136,4 +136,53 @@ class coordiApp_Ctrl extends Controller
             return response()->json(['mensaje' => $e->getMessage()], 500);
         }
     }
+
+    public function verificarSesion(Request $request)
+    {
+        if ($request->session()->has('user')) {
+            return response()->json([
+                'mensaje' => 'Sesión válida',
+                'usuario' => $request->session()->get('user')
+            ]);
+        } else {
+            return response()->json([
+                'mensaje' => 'Sesión no válida o expirada'
+            ], 401); // Código de estado 401 para sesión no válida
+        }
+    }
+
+    public function cerrarSesion(Request $request)
+    {
+        // Limpiar todos los datos de la sesión
+        $request->session()->flush();
+
+        return response()->json(['mensaje' => 'Sesión cerrada correctamente.']);
+    }
+
+    public function comparativa(Request $request)
+    {
+        // Validar los datos de entrada
+        $validatedData = $request->validate([
+            'anio' => 'required|integer',
+            'mes' => 'required|integer|min:1|max:12',
+            'idTecnico' => 'required|integer',
+            'opcion' => 'required|integer|in:1,2'
+        ]);
+
+        try {
+            $anio = $validatedData['anio'];
+            $mes = $validatedData['mes'];
+            $idTecnico = $validatedData['idTecnico'];
+            $opcion = $validatedData['opcion'];
+
+            // Obtener los datos desde el modelo
+            $result = $this->coordiApp->obtenerComparativa($anio, $mes, $idTecnico, $opcion);
+
+            return response()->json($result ?: ['mensaje' => 'No se encontraron resultados.']);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['mensaje' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -23,6 +23,7 @@ Route::prefix('coordiapp')->group(function () {
     Route::get('/opciones', [coordiApp_Ctrl::class, 'obtenerOpciones'])->name('coordiapp.opciones');
     Route::get('/get-orden/{Folio_Pisa}', [coordiApp_Ctrl::class, 'getOrden'])->name('coordiapp.get-orden');
     Route::put('/actualizar', [coordiApp_Ctrl::class, 'actualizar'])->name('coordiapp.actualizar');
+    Route::post('/comparativa', [coordiApp_Ctrl::class, 'comparativa'])->name('coordiapp.comparativa');
 });
 
 // Ruta para iniciar sesión en CoordiApp
