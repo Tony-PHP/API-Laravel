@@ -126,46 +126,34 @@ class m_coordiApp extends Model
         return $result ? $result[0]->Folio_Pisa : null;
     }
     
-    function comparativa($f3)
+    public function obtenerComparativa($anio, $mes, $idTecnico, $opcion)
     {
-        $body = json_decode($f3->get('BODY'), true);
-
-        $anio = isset($body['anio']) ? $body['anio'] : null;
-        $mes = isset($body['mes']) ? $body['mes'] : null;
-        $idTecnico = isset($body['idTecnico']) ? $body['idTecnico'] : null;
-        $opcion = isset($body['opcion']) ? $body['opcion'] : null;
-
-        if ($anio === null || $mes === null || $idTecnico === null || $opcion === null) {
-            echo json_encode(['error' => 'Faltan parámetros requeridos: anio, mes, idTecnico u opcion']);
-            return;
-        }
-
         if ($opcion == 1) {
             $sql = "WITH meses AS (
-                SELECT :anio AS Anio, :mes AS Mes
-            )
-            SELECT 
-                meses.Anio,
-                meses.Mes,
-                COALESCE(Telmex.TotalProduccion, 0) AS Registros_Telmex,
-                COALESCE(ED.TotalProduccion, 0) AS Registros_ED
-            FROM meses
-            LEFT JOIN (
-                SELECT YEAR(fecha_liq) AS Anio, MONTH(fecha_liq) AS Mes, COUNT(id_detalle_produccion) AS TotalProduccion
-                FROM `detalle_produccion`
-                WHERE tecnico = (SELECT CONCAT(Nombre_T, ' ', Apellidos_T) FROM tecnicos WHERE idTecnico = :idTecnico)
-                GROUP BY Anio, Mes
-            ) AS Telmex
-            ON meses.Anio = Telmex.Anio AND meses.Mes = Telmex.Mes
-            LEFT JOIN (
-                SELECT YEAR(Fecha_Coordiapp) AS Anio, MONTH(Fecha_Coordiapp) AS Mes, COUNT(idtecnico_instalaciones_coordiapp) AS TotalProduccion
-                FROM `tecnico_instalaciones_coordiapp`
-                WHERE FK_Tecnico_apps = :idTecnico
-                GROUP BY Anio, Mes
-            ) AS ED
-            ON meses.Anio = ED.Anio AND meses.Mes = ED.Mes
-            ORDER BY meses.Anio DESC, meses.Mes DESC;";
-        } else if ($opcion == 2) {
+                        SELECT :anio AS Anio, :mes AS Mes
+                    )
+                    SELECT 
+                        meses.Anio,
+                        meses.Mes,
+                        COALESCE(Telmex.TotalProduccion, 0) AS Registros_Telmex,
+                        COALESCE(ED.TotalProduccion, 0) AS Registros_ED
+                    FROM meses
+                    LEFT JOIN (
+                        SELECT YEAR(fecha_liq) AS Anio, MONTH(fecha_liq) AS Mes, COUNT(id_detalle_produccion) AS TotalProduccion
+                        FROM `detalle_produccion`
+                        WHERE tecnico = (SELECT CONCAT(Nombre_T, ' ', Apellidos_T) FROM tecnicos WHERE idTecnico = :idTecnico)
+                        GROUP BY Anio, Mes
+                    ) AS Telmex
+                    ON meses.Anio = Telmex.Anio AND meses.Mes = Telmex.Mes
+                    LEFT JOIN (
+                        SELECT YEAR(Fecha_Coordiapp) AS Anio, MONTH(Fecha_Coordiapp) AS Mes, COUNT(idtecnico_instalaciones_coordiapp) AS TotalProduccion
+                        FROM `tecnico_instalaciones_coordiapp`
+                        WHERE FK_Tecnico_apps = :idTecnico
+                        GROUP BY Anio, Mes
+                    ) AS ED
+                    ON meses.Anio = ED.Anio AND meses.Mes = ED.Mes
+                    ORDER BY meses.Anio DESC, meses.Mes DESC;";
+        } elseif ($opcion == 2) {
             $sql = "SELECT d.folio_pisa AS 'Folios_Telmex', d.telefono AS 'TELEFONOS_TELMEX'
                     FROM detalle_produccion d 
                     WHERE d.tecnico = (SELECT CONCAT(t.Nombre_T, ' ', t.Apellidos_T) 
@@ -181,23 +169,14 @@ class m_coordiApp extends Model
                         AND YEAR(i.Fecha_Coordiapp) = :anio
                     )
                     ORDER BY d.folio_pisa DESC;";
-        }
-
-        $db = $f3->get('DB');
-        $stmt = $db->prepare($sql);
-        $stmt->bindParam(':anio', $anio, PDO::PARAM_INT);
-        $stmt->bindParam(':mes', $mes, PDO::PARAM_INT);
-        $stmt->bindParam(':idTecnico', $idTecnico, PDO::PARAM_INT);
-        $stmt->bindParam(':opcion', $opcion, PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($result) {
-            echo json_encode($result);
         } else {
-            echo json_encode([]);
+            throw new \InvalidArgumentException('Opción no válida.');
         }
+
+        return DB::select($sql, [
+            'anio' => $anio,
+            'mes' => $mes,
+            'idTecnico' => $idTecnico
+        ]);
     }
 }
