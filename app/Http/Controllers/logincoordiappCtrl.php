@@ -43,7 +43,11 @@ class logincoordiappCtrl extends Controller
                 return response()->json(['mensaje' => 'Usuario no encontrado o inactivo.'], 404);
             }
 
-            return response()->json($resultado);
+             // Incluir el mensaje en la respuesta
+            return response()->json([
+                'mensaje' => 'Datos Correctos',
+                'usuario' => $resultado
+            ]);
         } catch (\Exception $e) {
             // Manejar excepciones y devolver un error con código 500
             return response()->json(['error' => 'Error al iniciar sesión: ' . $e->getMessage()], 500);
