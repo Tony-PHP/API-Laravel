@@ -9,7 +9,7 @@ use App\Http\Controllers\distritosCtrl;
 
 /**
  * Rutas principales de la API.
- */
+*/
 
 // Ruta principal
 Route::get('/', function () {
@@ -71,7 +71,7 @@ Route::prefix('materiales')->group(function () {
 
 /**
  * Grupo de rutas para Distritos.
- */
+*/
 Route::prefix('distritos')->group(function () {
     // Ruta para obtener distritos, opcionalmente filtrados por ID de COPE
     Route::post('/obtener', [distritosCtrl::class, 'obtenerDistritos'])->name('distritos.obtener');

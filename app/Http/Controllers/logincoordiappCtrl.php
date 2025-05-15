@@ -60,7 +60,7 @@ class logincoordiappCtrl extends Controller
     {
         if ($request->session()->has('user')) {
             return response()->json([
-                'mensaje' => 'Sesión válida',
+                'mensaje' => 'Datos Correctos',
                 'usuario' => $request->session()->get('user')
             ]);
         } else {
