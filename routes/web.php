@@ -4,19 +4,28 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\bolsaTac_Ctrl;
 use App\Http\Controllers\coordiApp_Ctrl;
 use App\Http\Controllers\logincoordiappCtrl;
+use App\Http\Controllers\materialesCtrl;
 
+// Ruta principal
 Route::get('/', function () {
     return view('welcome');
 });
 
-//RUTA PARA OBTENER ORDENES DE BOLSA TAC
-Route::get('/bolsa-tac/{Folio_Pisa}', [bolsaTac_Ctrl::class, 'getProduccionBolsaTac']);
+// Grupo de rutas para Bolsa TAC
+Route::prefix('bolsa-tac')->group(function () {
+    Route::get('/{Folio_Pisa}', [bolsaTac_Ctrl::class, 'getProduccionBolsaTac'])->name('bolsa-tac.produccion');
+});
 
-//RUTA PARA OBTENER ORDENES COMPLETADAS COORDIAPP TECNICO
-Route::get('/completadas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesCompletadas']);
+// Grupo de rutas para CoordiApp
+Route::prefix('coordiapp')->group(function () {
+    Route::get('/completadas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesCompletadas'])->name('coordiapp.completadas');
+    Route::get('/incompletas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesIncompletas'])->name('coordiapp.incompletas');
+});
 
-//RUTA PARA OBTENER ORDENES INCOMPLETAS COORDIAPP TECNICO
-Route::get('/incompletas-tecnico/{FK_Tecnico_apps}', [coordiApp_Ctrl::class, 'getOrdenesIncompletas']);
+// Ruta para iniciar sesión en CoordiApp
+Route::get('/iniciar-sesion/{Usuario_App}', [logincoordiappCtrl::class, 'iniciarSesion'])->name('coordiapp.iniciar-sesion');
 
-//RUTA PARA INICIAR SESION COORDIAPP
-Route::get('/iniciar-sesion/{Usuario_App}', [logincoordiappCtrl::class, 'iniciarSesion']);
+// Grupo de rutas para Materiales
+Route::prefix('materiales')->group(function () {
+    Route::get('/{FK_Tecnico_Salida_Det}', [materialesCtrl::class, 'getOnt'])->name('materiales.obtener');
+});
