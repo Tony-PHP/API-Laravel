@@ -161,38 +161,6 @@ class coordiApp_Ctrl extends Controller
     }
 
     /**
-     * Valida si la sesión del usuario es válida.
-     *
-     * @param Request $request Solicitud HTTP.
-     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
-     */
-    public function verificarSesion(Request $request)
-    {
-        if ($request->session()->has('user')) {
-            return response()->json([
-                'mensaje' => 'Sesión válida',
-                'usuario' => $request->session()->get('user')
-            ]);
-        } else {
-            return response()->json([
-                'mensaje' => 'Sesión no válida o expirada'
-            ], 401);
-        }
-    }
-
-    /**
-     * Cierra la sesión del usuario.
-     *
-     * @param Request $request Solicitud HTTP.
-     * @return \Illuminate\Http\JsonResponse Respuesta en formato JSON.
-     */
-    public function cerrarSesion(Request $request)
-    {
-        $request->session()->flush();
-        return response()->json(['mensaje' => 'Sesión cerrada correctamente.']);
-    }
-
-    /**
      * Obtiene una comparativa basada en los parámetros proporcionados.
      *
      * @param Request $request Solicitud HTTP.

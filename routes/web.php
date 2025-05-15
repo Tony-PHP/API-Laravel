@@ -25,6 +25,20 @@ Route::prefix('bolsa-tac')->group(function () {
 });
 
 /**
+ * Grupo de rutas para el manejo de inicio de sesión en CoordiApp.
+ */
+Route::prefix('login-coordiapp')->group(function () {
+    // Ruta para iniciar sesión
+    Route::get('/iniciar-sesion/{Usuario_App}/{Estatus_Tecnico?}', [logincoordiappCtrl::class, 'iniciarSesion'])->name('login-coordiapp.iniciar-sesion');
+
+    // Ruta para verificar si la sesión es válida
+    Route::get('/verificar-sesion', [logincoordiappCtrl::class, 'verificarSesion'])->name('login-coordiapp.verificar-sesion');
+
+    // Ruta para cerrar sesión
+    Route::post('/cerrar-sesion', [logincoordiappCtrl::class, 'cerrarSesion'])->name('login-coordiapp.cerrar-sesion');
+});
+
+/**
  * Grupo de rutas para CoordiApp.
  */
 Route::prefix('coordiapp')->group(function () {
@@ -46,11 +60,6 @@ Route::prefix('coordiapp')->group(function () {
     // Ruta para obtener una comparativa de producción
     Route::post('/comparativa', [coordiApp_Ctrl::class, 'comparativa'])->name('coordiapp.comparativa');
 });
-
-/**
- * Ruta para iniciar sesión en CoordiApp.
- */
-Route::get('/iniciar-sesion/{Usuario_App}', [logincoordiappCtrl::class, 'iniciarSesion'])->name('coordiapp.iniciar-sesion');
 
 /**
  * Grupo de rutas para Materiales.
