@@ -16,6 +16,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
 /**
  * Grupo de rutas para Bolsa TAC.
  */
